@@ -1,0 +1,107 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 24,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "macos-core",
+      "displayName": "macOS core + tests (no OBS)",
+      "description": "Builds the portable core and its tests. No libobs, Qt or libmxl required.",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/macos-core",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "OBS_MXL_ENABLE_PLUGIN": "OFF",
+        "OBS_MXL_BUILD_TESTS": "ON",
+        "OBS_MXL_WARNINGS_AS_ERRORS": "ON"
+      }
+    },
+    {
+      "name": "macos-core-release",
+      "displayName": "macOS core + tests (Release)",
+      "inherits": "macos-core",
+      "binaryDir": "${sourceDir}/build/macos-core-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "linux-dev",
+      "displayName": "Linux plugin (dev)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/linux-dev",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "OBS_MXL_ENABLE_PLUGIN": "ON",
+        "OBS_MXL_BUILD_TESTS": "ON",
+        "OBS_MXL_WARNINGS_AS_ERRORS": "ON"
+      }
+    },
+    {
+      "name": "linux-ci",
+      "displayName": "Linux plugin (CI, Release)",
+      "inherits": "linux-dev",
+      "binaryDir": "${sourceDir}/build/linux-ci",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "OBS_MXL_ENABLE_SANITIZERS": "OFF"
+      }
+    },
+    {
+      "name": "linux-core",
+      "displayName": "Linux core + tests (no OBS)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/linux-core",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "OBS_MXL_ENABLE_PLUGIN": "OFF",
+        "OBS_MXL_BUILD_TESTS": "ON",
+        "OBS_MXL_WARNINGS_AS_ERRORS": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "macos-core",
+      "configurePreset": "macos-core"
+    },
+    {
+      "name": "linux-dev",
+      "configurePreset": "linux-dev"
+    },
+    {
+      "name": "linux-ci",
+      "configurePreset": "linux-ci"
+    },
+    {
+      "name": "linux-core",
+      "configurePreset": "linux-core"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "macos-core",
+      "configurePreset": "macos-core",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "linux-ci",
+      "configurePreset": "linux-ci",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "linux-core",
+      "configurePreset": "linux-core",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ]
+}

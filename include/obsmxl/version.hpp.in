@@ -1,0 +1,17 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+// SPDX-FileCopyrightText: 2026 obs-mxl contributors
+
+#pragma once
+
+#define OBSMXL_VERSION_MAJOR @PROJECT_VERSION_MAJOR@
+#define OBSMXL_VERSION_MINOR @PROJECT_VERSION_MINOR@
+#define OBSMXL_VERSION_PATCH @PROJECT_VERSION_PATCH@
+#define OBSMXL_VERSION_STRING "@PROJECT_VERSION@"
+#define OBSMXL_PLUGIN_ID "obs-mxl"
+#define OBSMXL_SOURCE_ID "mxl_input_source"
+#define OBSMXL_OUTPUT_ID "mxl_output"
+
+namespace obsmxl
+{
+    inline constexpr char const* version_string = OBSMXL_VERSION_STRING;
+}
