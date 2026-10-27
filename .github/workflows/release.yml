@@ -1,0 +1,44 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    name: Linux package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Dagger
+        run: |
+          mkdir -p "$HOME/.local/bin"
+          curl -fsSL -o /tmp/dagger.tgz \
+            https://github.com/dagger/dagger/releases/download/v0.18.3/dagger_v0.18.3_linux_amd64.tar.gz
+          tar xzf /tmp/dagger.tgz -C "$HOME/.local/bin" dagger
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Build package
+        run: |
+          mkdir -p build
+          dagger call package --source=. export --path=build/obs-mxl.tar.gz
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: obs-mxl-package
+          path: build/obs-mxl.tar.gz
+
+      - name: Attach to release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1 || \
+            gh release create "${GITHUB_REF_NAME}" --generate-notes
+          gh release upload "${GITHUB_REF_NAME}" build/obs-mxl.tar.gz --clobber

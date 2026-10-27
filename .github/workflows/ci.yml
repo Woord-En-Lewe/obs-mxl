@@ -1,0 +1,54 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    name: Linux plugin (Dagger)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Dagger
+        run: |
+          mkdir -p "$HOME/.local/bin"
+          curl -fsSL -o /tmp/dagger.tgz \
+            https://github.com/dagger/dagger/releases/download/v0.18.3/dagger_v0.18.3_linux_amd64.tar.gz
+          tar xzf /tmp/dagger.tgz -C "$HOME/.local/bin" dagger
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Build, lint and test
+        run: dagger call ci --source=. --progress=plain
+
+      - name: Export plugin
+        run: |
+          mkdir -p build
+          dagger call build --source=. export --path=build/obs-mxl.so
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: obs-mxl-linux
+          path: build/obs-mxl.so
+
+  macos-core:
+    name: macOS core tests
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake --preset macos-core
+
+      - name: Build
+        run: cmake --build --preset macos-core
+
+      - name: Test
+        run: ctest --preset macos-core --output-on-failure
